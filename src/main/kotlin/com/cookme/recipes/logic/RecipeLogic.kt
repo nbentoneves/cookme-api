@@ -16,10 +16,11 @@ class RecipeLogic(@Autowired private val recipeRepository: RecipeRepository) {
         private val LOGGER = LoggerFactory.getLogger(RecipeLogic::class.java)
     }
 
-    fun createRecipe(@NonNull recipeDto: RecipeDTO): Recipe {
+    fun createRecipe(@NonNull recipeDto: RecipeDTO,
+                     @NonNull uuid: UUID): Recipe {
 
         val recipeDoc = Recipe(
-                id = UUID.randomUUID().toString(),
+                id = uuid.toString(),
                 title = recipeDto.title,
                 tags = recipeDto.listOfTags,
                 recipe = recipeDto.recipe)

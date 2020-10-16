@@ -30,7 +30,7 @@ class RecipeController(@Autowired private val recipeLogic: RecipeLogic) {
         val recipeDto = RecipeDTO(title = request.title,
                 listOfTags = request.tags, recipe = request.recipe)
 
-        val recipe = recipeLogic.createRecipe(recipeDto)
+        val recipe = recipeLogic.createRecipe(recipeDto, UUID.randomUUID())
 
         return ResponseEntity(recipe, HttpStatus.CREATED)
 
@@ -45,17 +45,25 @@ class RecipeController(@Autowired private val recipeLogic: RecipeLogic) {
 
         LOGGER.info("opr=getRecipe, msg='Request', id={}", id)
 
-        val recipe = recipeLogic.searchRecipe(UUID.fromString(id))
+        try {
+            val recipe: Optional<Recipe> = recipeLogic.searchRecipe(UUID.fromString(id))
 
-        return if (recipe.isEmpty) {
-            val apiError = RecipeErrorResponse(
-                    status = HttpStatus.NOT_FOUND.value(),
-                    error = "Did not found any recipe",
-                    path = "/get/$id")
+            return if (recipe.isEmpty) {
+                val apiError = RecipeErrorResponse(
+                        status = HttpStatus.NOT_FOUND.value(),
+                        error = "Did not found any recipe",
+                        path = "/get/$id")
 
-            ResponseEntity(apiError, HttpStatus.NOT_FOUND)
-        } else {
-            ResponseEntity(recipe.get(), HttpStatus.OK)
+                ResponseEntity(apiError, HttpStatus.NOT_FOUND)
+            } else {
+                ResponseEntity(recipe.get(), HttpStatus.OK)
+            }
+        } catch (ex: IllegalArgumentException) {
+            return ResponseEntity(RecipeErrorResponse(
+                    status = HttpStatus.BAD_REQUEST.value(),
+                    error = "The recipe identifier is invalid",
+                    path = "/get/$id"), HttpStatus.BAD_REQUEST)
+
         }
 
     }
@@ -74,7 +82,7 @@ class RecipeController(@Autowired private val recipeLogic: RecipeLogic) {
                 .map { tag -> tag.trim() }
                 .toSet()
 
-        val recipe = recipeLogic.getRandomRecipe(setOfTags)
+        val recipe: Optional<Recipe> = recipeLogic.getRandomRecipe(setOfTags)
 
         return if (recipe.isEmpty) {
             val apiError = RecipeErrorResponse(
@@ -88,4 +96,5 @@ class RecipeController(@Autowired private val recipeLogic: RecipeLogic) {
         }
 
     }
+
 }
