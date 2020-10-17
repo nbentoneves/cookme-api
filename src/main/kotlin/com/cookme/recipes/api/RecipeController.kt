@@ -73,6 +73,7 @@ class RecipeController(@Autowired private val recipeLogic: RecipeLogic) {
      *
      */
     @GetMapping("/get")
+    @CrossOrigin(origins = ["*"])
     fun getRandomRecipe(@RequestParam tags: String): ResponseEntity<Any> {
 
         LOGGER.info("opr=getRandomRecipe, msg='Request', tags={}", tags)
