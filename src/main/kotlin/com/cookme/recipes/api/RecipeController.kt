@@ -1,5 +1,6 @@
 package com.cookme.recipes.api
 
+import com.cookme.recipes.domain.IngredientDTO
 import com.cookme.recipes.domain.RecipeDTO
 import com.cookme.recipes.logic.RecipeLogic
 import com.cookme.recipes.mongo.documents.Recipe
@@ -28,7 +29,11 @@ class RecipeController(@Autowired private val recipeLogic: RecipeLogic) {
         LOGGER.info("opr=createRecipe, msg='Request', request={}", request)
 
         val recipeDto = RecipeDTO(title = request.title,
-                listOfTags = request.tags, recipe = request.recipe)
+                listOfTags = request.tags,
+                listOfIngredients = request.ingredients
+                        .map { ingredient -> IngredientDTO(ingredient.name, ingredient.measure) }
+                        .toSet(),
+                recipe = request.recipe)
 
         val recipe = recipeLogic.createRecipe(recipeDto, UUID.randomUUID())
 
@@ -69,27 +74,27 @@ class RecipeController(@Autowired private val recipeLogic: RecipeLogic) {
     }
 
     /**
-     * Request must be done like: /recipes/get?tags=tag1,tag2,tag3
+     * Request must be done like: /recipes/get?ingredients=apple,rice
      *
      */
     @GetMapping("/get")
     @CrossOrigin(origins = ["*"])
-    fun getRandomRecipe(@RequestParam tags: String): ResponseEntity<Any> {
+    fun getRandomRecipe(@RequestParam ingredients: String): ResponseEntity<Any> {
 
-        LOGGER.info("opr=getRandomRecipe, msg='Request', tags={}", tags)
+        LOGGER.info("opr=getRandomRecipe, msg='Request', ingredients={}", ingredients)
 
-        val setOfTags = tags
+        val setOfIngredients = ingredients
                 .split(",")
                 .map { tag -> tag.trim() }
                 .toSet()
 
-        val recipe: Optional<Recipe> = recipeLogic.getRandomRecipe(setOfTags)
+        val recipe: Optional<Recipe> = recipeLogic.getRandomRecipe(setOfIngredients)
 
         return if (recipe.isEmpty) {
             val apiError = RecipeErrorResponse(
                     status = HttpStatus.NOT_FOUND.value(),
                     error = "Did not found any recipe",
-                    path = "/get?tags=$tags")
+                    path = "/get?ingredients=$setOfIngredients")
 
             ResponseEntity(apiError, HttpStatus.NOT_FOUND)
         } else {

@@ -1,6 +1,7 @@
 package com.cookme.recipes.logic
 
 import com.cookme.recipes.domain.RecipeDTO
+import com.cookme.recipes.mongo.documents.Ingredient
 import com.cookme.recipes.mongo.documents.Recipe
 import com.cookme.recipes.mongo.repository.RecipeRepository
 import org.slf4j.LoggerFactory
@@ -19,11 +20,16 @@ class RecipeLogic(@Autowired private val recipeRepository: RecipeRepository) {
     fun createRecipe(@NonNull recipeDto: RecipeDTO,
                      @NonNull uuid: UUID): Recipe {
 
+        val setOfIngredients = recipeDto.listOfIngredients
+                .map { ingredient -> Ingredient(ingredient.name, ingredient.measure) }
+                .toSet()
+
         val recipeDoc = Recipe(
                 id = uuid.toString(),
                 title = recipeDto.title,
                 tags = recipeDto.listOfTags,
-                recipe = recipeDto.recipe)
+                recipe = recipeDto.recipe,
+                ingredients = setOfIngredients)
 
         LOGGER.info("opr=createRecipe, msg='Create recipe', recipe={}", recipeDoc)
 
@@ -42,7 +48,7 @@ class RecipeLogic(@Autowired private val recipeRepository: RecipeRepository) {
 
     }
 
-    fun getRandomRecipe(@NonNull listOfTags: Set<String>): Optional<Recipe> {
+    fun getRandomRecipe(@NonNull listOfIngredients: Set<String>): Optional<Recipe> {
 
         var recipe: Optional<Recipe> = Optional.empty()
         val allRecipes = recipeRepository.findAll()
@@ -50,8 +56,15 @@ class RecipeLogic(@Autowired private val recipeRepository: RecipeRepository) {
         LOGGER.debug("opr=getRandomRecipe, msg='Number of recipes', size={}", allRecipes.size)
 
         if (!allRecipes.isNullOrEmpty()) {
+
             recipe = Optional.ofNullable(allRecipes
-                    .filter { recipeEntity -> recipeEntity.tags.containsAll(listOfTags) }
+                    .filter {
+                        val ingredientList = it.ingredients
+                                .map { ingredient -> ingredient.name }
+                                .toSet()
+
+                        ingredientList.containsAll(listOfIngredients)
+                    }
                     .randomOrNull())
         }
 

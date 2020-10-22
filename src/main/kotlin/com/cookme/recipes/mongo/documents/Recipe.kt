@@ -9,11 +9,8 @@ data class Recipe(
         val id: String,
         val title: String,
         val tags: Set<String>,
+        val ingredients: Set<Ingredient>,
         val recipe: String) {
-
-    override fun toString(): String {
-        return "Recipe[id='$id', title='$title', tags=$tags, recipe='$recipe']"
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -28,5 +25,12 @@ data class Recipe(
 
     override fun hashCode(): Int {
         return id.hashCode()
+    }
+
+    override fun toString(): String {
+        return "Recipe[id='$id', " +
+                "title='$title', " +
+                "ingredients='$ingredients', " +
+                "tags=$tags]"
     }
 }

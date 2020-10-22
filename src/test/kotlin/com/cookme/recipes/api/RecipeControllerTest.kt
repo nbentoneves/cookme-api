@@ -1,7 +1,9 @@
 package com.cookme.recipes.api
 
+import com.cookme.recipes.domain.IngredientDTO
 import com.cookme.recipes.domain.RecipeDTO
 import com.cookme.recipes.logic.RecipeLogic
+import com.cookme.recipes.mongo.documents.Ingredient
 import com.cookme.recipes.mongo.documents.Recipe
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -29,13 +31,19 @@ class RecipeControllerTest {
     fun `create a recipe`() {
 
         val identifier = UUID.randomUUID()
-        val request = RecipeRequest("A title", setOf("tag1", "tag2"), "recipe")
+        val request = RecipeRequest("A title", setOf("tag1", "tag2"),
+                setOf(RecipeRequest.Ingredient("ingre1", "measure1")),
+                "recipe")
 
-        val recipe = Recipe(identifier.toString(), "A title", setOf("tag1", "tag2"), "recipe")
+        val recipe = Recipe(identifier.toString(), "A title", setOf("tag1", "tag2"),
+                setOf(Ingredient("ingre1", "measuere1")),
+                "recipe")
 
         every {
             recipeLogic.createRecipe(
-                    RecipeDTO("A title", setOf("tag1", "tag2"), "recipe"), any())
+                    RecipeDTO("A title",
+                            setOf(IngredientDTO("ingre1", "measure1")),
+                            setOf("tag1", "tag2"), "recipe"), any())
         } returns recipe
 
         val result = recipeController.createRecipe(request)
@@ -52,7 +60,10 @@ class RecipeControllerTest {
 
         val identifier = UUID.randomUUID()
 
-        val recipe = Recipe(identifier.toString(), "A title", setOf("tag1", "tag2"), "recipe")
+        val recipe = Recipe(identifier.toString(), "A title",
+                setOf("tag1", "tag2"),
+                setOf(Ingredient("ingre1", "measuere1")),
+                "recipe")
 
         every {
             recipeLogic.searchRecipe(identifier)
@@ -102,7 +113,10 @@ class RecipeControllerTest {
     @Test
     fun `get a valid random recipe`() {
 
-        val recipe = Recipe(UUID.randomUUID().toString(), "A title", setOf("tag1", "tag2"), "recipe")
+        val recipe = Recipe(UUID.randomUUID().toString(), "A title",
+                setOf("tag1", "tag2"),
+                setOf(Ingredient("ingre1", "measuere1")),
+                "recipe")
 
         every {
             recipeLogic.getRandomRecipe(setOf("tag1", "tag2"))
