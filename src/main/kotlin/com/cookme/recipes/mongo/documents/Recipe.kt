@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId
 data class Recipe(
         @MongoId
         val id: String,
+        val externalId: String? = null,
         val title: String,
         val tags: Set<String>,
         val ingredients: Set<Ingredient>,
@@ -29,6 +30,7 @@ data class Recipe(
 
     override fun toString(): String {
         return "Recipe[id='$id', " +
+                "externalId='$externalId', " +
                 "title='$title', " +
                 "ingredients='$ingredients', " +
                 "tags=$tags]"

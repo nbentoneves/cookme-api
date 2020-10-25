@@ -94,7 +94,7 @@ class RecipeController(@Autowired private val recipeLogic: RecipeLogic) {
             val apiError = RecipeErrorResponse(
                     status = HttpStatus.NOT_FOUND.value(),
                     error = "Did not found any recipe",
-                    path = "/get?ingredients=$setOfIngredients")
+                    path = "/get?ingredients=$ingredients")
 
             ResponseEntity(apiError, HttpStatus.NOT_FOUND)
         } else {

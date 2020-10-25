@@ -44,7 +44,7 @@ class BatchProcessor : Tasklet, StepExecutionListener {
                     .map { ingredient -> IngredientDTO(ingredient.name, ingredient.measure) }
                     .toSet()
 
-            this.recipeDTO = Optional.of(RecipeDTO(this.recipe.get().title, setOfIngredients,
+            this.recipeDTO = Optional.of(RecipeDTO(this.recipe.get().title, this.recipe.get().id, setOfIngredients,
                     this.recipe.get().tags, this.recipe.get().instructions))
         }
 

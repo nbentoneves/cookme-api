@@ -29,6 +29,7 @@ class RecipeLogic(@Autowired private val recipeRepository: RecipeRepository) {
                 title = recipeDto.title,
                 tags = recipeDto.listOfTags,
                 recipe = recipeDto.recipe,
+                externalId = recipeDto.externalId,
                 ingredients = setOfIngredients)
 
         LOGGER.info("opr=createRecipe, msg='Create recipe', recipe={}", recipeDoc)

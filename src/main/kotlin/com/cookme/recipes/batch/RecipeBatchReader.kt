@@ -46,15 +46,16 @@ class RecipeBatchReader(private val restTemplate: RestTemplate,
         LOGGER.info("opr=read, msg='Starting read data'")
 
         try {
-            val recipe = Optional.empty<Recipe>()
-            //val recipe = fetchData()
+            //val recipe = Optional.empty<Recipe>()
+            val recipe = fetchData()
 
             if (recipe.isPresent) {
                 LOGGER.info("opr=read, msg='Finished read data', recipeId={}", recipe.get().id)
                 this.recipe = Optional.of(recipe.get())
+            } else {
+                LOGGER.warn("For some reason the system can not collect any recipe, please check the code")
             }
 
-            LOGGER.warn("For some reason the system can not collect any recipe, please check the code")
         } catch (ex: Exception) {
             LOGGER.error("Something wrong happened", ex)
         }

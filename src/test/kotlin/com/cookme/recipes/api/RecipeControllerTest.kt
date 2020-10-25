@@ -17,9 +17,9 @@ import java.util.*
 class RecipeControllerTest {
 
     @MockK
-    lateinit var recipeLogic: RecipeLogic
+    private lateinit var recipeLogic: RecipeLogic
 
-    lateinit var recipeController: RecipeController
+    private lateinit var recipeController: RecipeController
 
     @BeforeEach
     fun setUp() {
@@ -35,13 +35,13 @@ class RecipeControllerTest {
                 setOf(RecipeRequest.Ingredient("ingre1", "measure1")),
                 "recipe")
 
-        val recipe = Recipe(identifier.toString(), "A title", setOf("tag1", "tag2"),
+        val recipe = Recipe(identifier.toString(), null,"A title", setOf("tag1", "tag2"),
                 setOf(Ingredient("ingre1", "measuere1")),
                 "recipe")
 
         every {
             recipeLogic.createRecipe(
-                    RecipeDTO("A title",
+                    RecipeDTO("A title", null,
                             setOf(IngredientDTO("ingre1", "measure1")),
                             setOf("tag1", "tag2"), "recipe"), any())
         } returns recipe
@@ -60,7 +60,9 @@ class RecipeControllerTest {
 
         val identifier = UUID.randomUUID()
 
-        val recipe = Recipe(identifier.toString(), "A title",
+        val recipe = Recipe(identifier.toString(),
+                null,
+                "A title",
                 setOf("tag1", "tag2"),
                 setOf(Ingredient("ingre1", "measuere1")),
                 "recipe")
@@ -113,7 +115,9 @@ class RecipeControllerTest {
     @Test
     fun `get a valid random recipe`() {
 
-        val recipe = Recipe(UUID.randomUUID().toString(), "A title",
+        val recipe = Recipe(UUID.randomUUID().toString(),
+                null,
+                "A title",
                 setOf("tag1", "tag2"),
                 setOf(Ingredient("ingre1", "measuere1")),
                 "recipe")
@@ -144,7 +148,7 @@ class RecipeControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, result.statusCode)
         assertEquals("Did not found any recipe", apiError.error)
         assertEquals("", apiError.message)
-        assertEquals("/get?tags=tag1-tag2", apiError.path)
+        assertEquals("/get?ingredients=tag1-tag2", apiError.path)
         assertEquals(404, apiError.status)
     }
 

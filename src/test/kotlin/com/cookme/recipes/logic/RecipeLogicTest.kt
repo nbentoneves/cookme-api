@@ -16,9 +16,9 @@ import java.util.*
 class RecipeLogicTest {
 
     @MockK
-    lateinit var recipeRepository: RecipeRepository
+    private lateinit var recipeRepository: RecipeRepository
 
-    lateinit var recipeLogic: RecipeLogic
+    private lateinit var recipeLogic: RecipeLogic
 
     @BeforeEach
     fun setUp() {
@@ -31,12 +31,12 @@ class RecipeLogicTest {
 
         val identifier = UUID.randomUUID()
 
-        val recipeDto = RecipeDTO("A simple example",
+        val recipeDto = RecipeDTO("A simple example", null,
                 setOf(IngredientDTO("ingre1", "measure1"), IngredientDTO("ingre2", "measure2")),
                 setOf("tag1", "tag2"),
                 "This is a recipe")
 
-        val recipe = Recipe(identifier.toString(), "A simple example",
+        val recipe = Recipe(identifier.toString(), null, "A simple example",
                 setOf("tag1", "tag2"),
                 setOf(Ingredient("ingre1", "measure1"), Ingredient("ingre2", "measure2")),
                 "This is a recipe")
@@ -59,7 +59,7 @@ class RecipeLogicTest {
 
         val identifier = UUID.randomUUID()
 
-        val recipe = Recipe(identifier.toString(), "A simple example",
+        val recipe = Recipe(identifier.toString(), null, "A simple example",
                 setOf("tag1", "tag2"),
                 setOf(Ingredient("ingre1", "measure1"), Ingredient("ingre2", "measure2")),
                 "This is a recipe")
@@ -86,11 +86,11 @@ class RecipeLogicTest {
     @Test
     fun `get a random recipe based on valid ingredients should returns a present recipe`(){
 
-        val recipe1 = Recipe(UUID.randomUUID().toString(), "Recipe 1",
+        val recipe1 = Recipe(UUID.randomUUID().toString(), null,"Recipe 1",
                 setOf("tag1", "tag2"),
                 setOf(Ingredient("ingre1", "measure1"), Ingredient("ingre2", "measure2")),
                 "This is a recipe 1")
-        val recipe2 = Recipe(UUID.randomUUID().toString(), "Recipe 2",
+        val recipe2 = Recipe(UUID.randomUUID().toString(), null, "Recipe 2",
                 setOf("tag1", "tag3"),
                 setOf(Ingredient("ingre3", "measure1"), Ingredient("ingre4", "measure2")),
                 "This is a recipe 2")
@@ -106,11 +106,11 @@ class RecipeLogicTest {
     @Test
     fun `get a random recipe based on one invalid ingredient should returns a empty recipe`(){
 
-        val recipe1 = Recipe(UUID.randomUUID().toString(), "A simple example",
+        val recipe1 = Recipe(UUID.randomUUID().toString(), null,"A simple example",
                 setOf("tag1", "tag2"),
                 setOf(Ingredient("ingre1", "measure1"), Ingredient("ingre2", "measure2")),
                 "This is a recipe")
-        val recipe2 = Recipe(UUID.randomUUID().toString(), "A simple example",
+        val recipe2 = Recipe(UUID.randomUUID().toString(), null,"A simple example",
                 setOf("tag1", "tag3"),
                 setOf(Ingredient("ingre3", "measure1"), Ingredient("ingre4", "measure2")),
                 "This is a recipe")

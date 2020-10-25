@@ -14,14 +14,33 @@ import org.springframework.web.client.RestTemplate
 @Configuration
 @EnableBatchProcessing
 class BatchConfiguration(private val jobBuilderFactory: JobBuilderFactory,
-                         private val stepBuilderFactory: StepBuilderFactory) {
+                         private val stepBuilderFactory: StepBuilderFactory,
+                         private val recipeBatchReader: RecipeBatchReader,
+                         private val recipeBatchProcessor: BatchProcessor,
+                         private val recipeBatchWriter: RecipeBatchWriter,
+                         private val recipeLogic: RecipeLogic) {
 
     @Bean
-    fun reader(restTemplate: RestTemplate): Step {
+    fun recipeBatchReader(restTemplate: RestTemplate): RecipeBatchReader {
+        return RecipeBatchReader(restTemplate, "https://www.themealdb.com/api/json/v1/1/random.php")
+    }
+
+    @Bean
+    fun recipeBatchProcessor(): BatchProcessor {
+        return BatchProcessor()
+    }
+
+    @Bean
+    fun recipeBatchWriter(): RecipeBatchWriter {
+        return RecipeBatchWriter(recipeLogic)
+    }
+
+    @Bean
+    fun reader(): Step {
         //FIXME: Change the hardcoded url to a dynamic one
         return this.stepBuilderFactory
                 .get("recipeReader")
-                .tasklet(RecipeBatchReader(restTemplate, "https://www.themealdb.com/api/json/v1/1/random.php"))
+                .tasklet(recipeBatchReader)
                 .allowStartIfComplete(true)
                 .build()
     }
@@ -30,16 +49,16 @@ class BatchConfiguration(private val jobBuilderFactory: JobBuilderFactory,
     fun processor(): Step {
         return this.stepBuilderFactory
                 .get("recipeProcessor")
-                .tasklet(BatchProcessor())
+                .tasklet(recipeBatchProcessor)
                 .allowStartIfComplete(true)
                 .build()
     }
 
     @Bean
-    fun writer(recipeLogic: RecipeLogic): Step {
+    fun writer(): Step {
         return this.stepBuilderFactory
                 .get("recipeWriter")
-                .tasklet(RecipeBatchWriter(recipeLogic))
+                .tasklet(recipeBatchWriter)
                 .allowStartIfComplete(true)
                 .build()
     }
