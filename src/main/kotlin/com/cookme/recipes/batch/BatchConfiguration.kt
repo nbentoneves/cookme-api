@@ -6,7 +6,10 @@ import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
+import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.launch.support.RunIdIncrementer
+import org.springframework.batch.core.repository.JobRepository
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.client.RestTemplate
@@ -14,33 +17,26 @@ import org.springframework.web.client.RestTemplate
 @Configuration
 @EnableBatchProcessing
 class BatchConfiguration(private val jobBuilderFactory: JobBuilderFactory,
-                         private val stepBuilderFactory: StepBuilderFactory,
-                         private val recipeBatchReader: RecipeBatchReader,
-                         private val recipeBatchProcessor: BatchProcessor,
-                         private val recipeBatchWriter: RecipeBatchWriter,
-                         private val recipeLogic: RecipeLogic) {
+                         private val stepBuilderFactory: StepBuilderFactory) {
 
-    @Bean
-    fun recipeBatchReader(restTemplate: RestTemplate): RecipeBatchReader {
-        return RecipeBatchReader(restTemplate, "https://www.themealdb.com/api/json/v1/1/random.php")
+    @Value("\${spring.batch.job.recipe.endpoint}")
+    private lateinit var url: String
+
+    @Value("\${spring.batch.job.thread.pattern.name}")
+    private lateinit var threadPatternName: String
+
+    @Bean("recipeJobLauncher")
+    fun jobLauncher(jobRepository: JobRepository): JobLauncher {
+        val jobLauncher = RecipeLauncher(jobRepository, this.threadPatternName)
+        jobLauncher.afterPropertiesSet()
+        return jobLauncher
     }
 
     @Bean
-    fun recipeBatchProcessor(): BatchProcessor {
-        return BatchProcessor()
-    }
-
-    @Bean
-    fun recipeBatchWriter(): RecipeBatchWriter {
-        return RecipeBatchWriter(recipeLogic)
-    }
-
-    @Bean
-    fun reader(): Step {
-        //FIXME: Change the hardcoded url to a dynamic one
+    fun reader(restTemplate: RestTemplate): Step {
         return this.stepBuilderFactory
                 .get("recipeReader")
-                .tasklet(recipeBatchReader)
+                .tasklet(RecipeBatchReader(restTemplate, this.url))
                 .allowStartIfComplete(true)
                 .build()
     }
@@ -49,16 +45,16 @@ class BatchConfiguration(private val jobBuilderFactory: JobBuilderFactory,
     fun processor(): Step {
         return this.stepBuilderFactory
                 .get("recipeProcessor")
-                .tasklet(recipeBatchProcessor)
+                .tasklet(BatchProcessor())
                 .allowStartIfComplete(true)
                 .build()
     }
 
     @Bean
-    fun writer(): Step {
+    fun writer(recipeLogic: RecipeLogic): Step {
         return this.stepBuilderFactory
                 .get("recipeWriter")
-                .tasklet(recipeBatchWriter)
+                .tasklet(RecipeBatchWriter(recipeLogic))
                 .allowStartIfComplete(true)
                 .build()
     }

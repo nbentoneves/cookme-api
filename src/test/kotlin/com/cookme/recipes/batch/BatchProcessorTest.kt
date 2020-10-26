@@ -10,6 +10,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.ExitStatus
@@ -58,8 +59,8 @@ class BatchProcessorTest {
 
         verify(exactly = 0) { executionContext.put("recipeDTO", any()) }
 
-        Assertions.assertEquals(RepeatStatus.FINISHED, status)
-        Assertions.assertEquals(ExitStatus.COMPLETED, statusAfterStep)
+        assertEquals(RepeatStatus.FINISHED, status)
+        assertEquals(ExitStatus.COMPLETED, statusAfterStep)
 
     }
 
@@ -93,8 +94,8 @@ class BatchProcessorTest {
 
         verify(exactly = 1) { executionContext.put("recipeDTO", recipeDTO) }
 
-        Assertions.assertEquals(RepeatStatus.FINISHED, status)
-        Assertions.assertEquals(ExitStatus.COMPLETED, statusAfterStep)
+        assertEquals(RepeatStatus.FINISHED, status)
+        assertEquals(ExitStatus.COMPLETED, statusAfterStep)
 
     }
 
