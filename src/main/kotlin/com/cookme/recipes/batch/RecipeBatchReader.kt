@@ -46,8 +46,7 @@ class RecipeBatchReader(private val restTemplate: RestTemplate,
         LOGGER.info("opr=read, msg='Starting read data'")
 
         try {
-            val recipe = Optional.empty<Recipe>()
-            //val recipe = fetchData()
+            val recipe = fetchData()
 
             if (recipe.isPresent) {
                 LOGGER.info("opr=read, msg='Finished read data', recipeId={}", recipe.get().id)
